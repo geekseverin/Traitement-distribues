@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property>
+        <n>dfs.replication</n>
+        <value>3</value>
+    </property>
+    
+    <property>
+        <n>dfs.namenode.name.dir</n>
+        <value>/hadoop/dfs/name</value>
+    </property>
+    
+    <property>
+        <n>dfs.datanode.data.dir</n>
+        <value>/hadoop/dfs/data</value>
+    </property>
+    
+    <property>
+        <n>dfs.namenode.http-address</n>
+        <value>namenode:9870</value>
+    </property>
+    
+    <property>
+        <n>dfs.secondary.http.address</n>
+        <value>secondary-namenode:9868</value>
+    </property>
+    
+    <property>
+        <n>dfs.permissions.enabled</n>
+        <value>false</value>
+    </property>
+</configuration>

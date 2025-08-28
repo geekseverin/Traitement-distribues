@@ -1,0 +1,87 @@
+services:
+  namenode:
+    build: ./docker/hadoop-master
+    container_name: namenode
+    hostname: namenode
+    ports:
+      - "9870:9870"
+      - "8020:8020"
+      - "8080:8080"
+      - "5000:5000"
+    volumes:
+      - ./data:/data
+      - ./scripts:/scripts
+      - ./applications:/applications
+    environment:
+      - CLUSTER_NAME=hadoop-cluster
+    networks:
+      - hadoop
+
+  datanode1:
+    build: ./docker/hadoop-slave
+    container_name: datanode1
+    hostname: datanode1
+    ports:
+      - "9864:9864"
+    depends_on:
+      - namenode
+    environment:
+      - NODE_TYPE=datanode
+    networks:
+      - hadoop
+
+  datanode2:
+    build: ./docker/hadoop-slave
+    container_name: datanode2
+    hostname: datanode2
+    ports:
+      - "9865:9864"
+    depends_on:
+      - namenode
+    environment:
+      - NODE_TYPE=datanode
+    networks:
+      - hadoop
+
+  datanode3:
+    build: ./docker/hadoop-slave
+    container_name: datanode3
+    hostname: datanode3
+    ports:
+      - "9866:9864"
+    depends_on:
+      - namenode
+    environment:
+      - NODE_TYPE=datanode
+    networks:
+      - hadoop
+
+  secondary-namenode:
+    build: ./docker/hadoop-slave
+    container_name: secondary-namenode
+    hostname: secondary-namenode
+    ports:
+      - "9868:9868"
+    depends_on:
+      - namenode
+    environment:
+      - NODE_TYPE=secondary
+    networks:
+      - hadoop
+
+  mongodb:
+    image: mongo:5.0
+    container_name: mongodb
+    hostname: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongodb:/docker-entrypoint-initdb.d
+    environment:
+      - MONGO_INITDB_DATABASE=bigdata
+    networks:
+      - hadoop
+
+networks:
+  hadoop:
+    driver: bridge

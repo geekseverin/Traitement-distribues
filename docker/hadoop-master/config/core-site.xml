@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://namenode:9000</value>
+    </property>
+    
+    <property>
+        <name>hadoop.tmp.dir</name>
+        <value>/hadoop/temp</value>
+    </property>
+    
+    <property>
+        <name>hadoop.http.staticuser.user</name>
+        <value>root</value>
+    </property>
+    
+    <!-- MongoDB connector properties -->
+    <property>
+        <name>mongo.input.uri</name>
+        <value>mongodb://mongodb:27017/bigdata.collection</value>
+    </property>
+    
+    <property>
+        <name>mongo.output.uri</name>
+        <value>mongodb://mongodb:27017/bigdata.output</value>
+    </property>
+</configuration>
