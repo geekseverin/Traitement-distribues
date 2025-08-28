@@ -7,6 +7,7 @@ export JAVA_HOME=/usr/local/openjdk-8
 export HADOOP_HOME=/opt/hadoop
 export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
 export SPARK_HOME=/opt/spark
+export PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.9.7-src.zip
 
 # Add to PATH
 export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$SPARK_HOME/bin
@@ -70,7 +71,12 @@ sleep 5
 
 # Start Spark Master
 echo "⚡ Starting Spark Master..."
-$SPARK_HOME/sbin/start-master.sh
+$SPARK_HOME/sbin/start-master.sh -h namenode -p 7077
+sleep 5
+
+# Start Spark Worker
+echo "⚡ Starting Spark Worker..."
+$SPARK_HOME/sbin/start-worker.sh spark://namenode:7077
 sleep 5
 
 # Wait for services to be ready
@@ -89,22 +95,32 @@ if [ -f "/data/raw/sample_data.csv" ]; then
     $HADOOP_HOME/bin/hdfs dfs -put /data/raw/sample_data.csv /data/input/ 2>/dev/null || true
 fi
 
-# Install Python packages
-echo "🐍 Installing Python packages..."
-pip3 install flask pyspark pymongo requests 2>/dev/null || true
+if [ -f "/data/raw/sample_employees.csv" ]; then
+    echo "📊 Loading employee data to HDFS..."
+    $HADOOP_HOME/bin/hdfs dfs -put /data/raw/sample_employees.csv /data/input/ 2>/dev/null || true
+fi
 
-# Display status
+# Verify data in HDFS
+echo "📋 Verifying HDFS data..."
+$HADOOP_HOME/bin/hdfs dfs -ls /data/input/
+
 echo ""
 echo "✅ All services started successfully!"
 echo "🌐 Web UIs:"
 echo "  - NameNode: http://localhost:9870"
 echo "  - Spark Master: http://localhost:8080"
+echo "  - Streaming App: http://localhost:5000"
 echo ""
 
 # Show running Java processes
-echo "🔍 Running Hadoop processes:"
+echo "🔍 Running processes:"
 pgrep -f "hadoop" | wc -l | xargs echo "Hadoop processes:"
 pgrep -f "spark" | wc -l | xargs echo "Spark processes:"
+
+# Start Flask app in background
+echo "🌐 Starting Flask streaming application..."
+cd /applications/streaming-app
+python3 app.py &
 
 # Keep container running
 echo "🔄 Keeping container alive..."
