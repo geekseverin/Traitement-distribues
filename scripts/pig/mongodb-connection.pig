@@ -10,8 +10,10 @@ REGISTER /opt/hadoop/share/hadoop/common/lib/mongodb-driver-3.12.11.jar;
 %default MONGO_OUTPUT 'mongodb://mongodb:27017/bigdata.results'
 
 -- Load data from MongoDB
-mongo_data = LOAD '$MONGO_INPUT' 
-    USING com.mongodb.hadoop.pig.MongoLoader('id, name, age, department, salary', 'id');
+-- Utiliser directement les données HDFS pour tester d'abord
+mongo_data = LOAD '/data/input/sample_data.csv' 
+    USING PigStorage(',') 
+    AS (id:int, name:chararray, age:int, city:chararray, salary:double, department:chararray);
 
 -- Display schema
 DESCRIBE mongo_data;
