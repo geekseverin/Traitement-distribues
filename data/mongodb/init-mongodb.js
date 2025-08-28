@@ -1,8 +1,8 @@
 // MongoDB initialization script
 // This script will create sample data in MongoDB
 
-// Switch to bigdata database
-use('bigdata');
+// Switch to bigdata database (correct syntax)
+db = db.getSiblingDB('bigdata');
 
 // Create employees collection with sample data
 db.employees.insertMany([

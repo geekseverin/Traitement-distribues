@@ -7,7 +7,7 @@ REGISTER /opt/hadoop/share/hadoop/common/lib/mongo-hadoop-core-2.0.2.jar;
 REGISTER /opt/hadoop/share/hadoop/common/lib/mongodb-driver-3.12.11.jar;
 
 -- Load data from HDFS (CSV format)
-raw_data = LOAD '/data/input/sample_data.csv' 
+raw_data = LOAD  'hdfs://namenode:9000/data/input/sample_data.csv' 
     USING PigStorage(',') 
     AS (id:int, name:chararray, age:int, city:chararray, salary:double, department:chararray);
 
