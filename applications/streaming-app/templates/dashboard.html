@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Big Data Dashboard - Real Spark Streaming</title>
+    <title>Big Data Dashboard - Real Data Analysis</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -62,9 +62,9 @@
             opacity: 0.9;
         }
         
-        .spark-status {
+        .real-data-highlight {
             background: rgba(0, 255, 0, 0.2);
-            border: 1px solid rgba(0, 255, 0, 0.5);
+            border: 2px solid rgba(0, 255, 0, 0.5);
         }
         
         .controls {
@@ -139,52 +139,62 @@
             margin-top: 15px;
             font-family: monospace;
             font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .data-record {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .warning-box {
+            background: rgba(255, 165, 0, 0.2);
+            border: 1px solid rgba(255, 165, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 Big Data Dashboard - Real Spark Streaming</h1>
-            <p>Live Data Processing | Hadoop + Spark + MongoDB | <span id="sparkStatus">Connecting...</span></p>
+            <h1>📊 Big Data Dashboard - Analyse de VOS Données Réelles</h1>
+            <p>Analyse Statique | Hadoop + Spark + MongoDB | <span id="sparkStatus">Connecting...</span></p>
+            <div class="warning-box">
+                <strong>🎯 MODE: Analyse de vos 10 lignes CSV réelles uniquement</strong><br>
+                Aucune génération de données aléatoires
+            </div>
         </div>
         
         <div class="controls">
-            <button class="btn" onclick="startProcessing()">🚀 Start Spark Streaming</button>
-            <button class="btn btn-stop" onclick="stopProcessing()">⏹️ Stop Streaming</button>
-            <button class="btn" onclick="refreshData()">🔄 Refresh Data</button>
-            <button class="btn" onclick="showSparkInfo()">⚡ Spark Info</button>
+            <button class="btn" onclick="startProcessing()">🚀 Analyser Mes Données</button>
+            <button class="btn btn-stop" onclick="stopProcessing()">⏹️ Arrêter</button>
+            <button class="btn" onclick="refreshData()">🔄 Actualiser</button>
+            <button class="btn" onclick="showAllData()">📋 Voir Toutes Mes Données</button>
         </div>
         
         <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card real-data-highlight">
                 <div class="stat-value" id="totalRecords">0</div>
-                <div class="stat-label">Total Records Processed</div>
+                <div class="stat-label">Vos Vrais Enregistrements</div>
             </div>
             
-            <div class="stat-card">
+            <div class="stat-card real-data-highlight">
                 <div class="stat-value" id="avgSalary">$0</div>
-                <div class="stat-label">Average Salary</div>
+                <div class="stat-label">Salaire Moyen Réel</div>
             </div>
             
-            <div class="stat-card">
+            <div class="stat-card real-data-highlight">
                 <div class="stat-value" id="departmentCount">0</div>
-                <div class="stat-label">Active Departments</div>
+                <div class="stat-label">Départements dans Vos Données</div>
             </div>
             
             <div class="stat-card">
-                <div class="stat-value" id="processingRate">0/batch</div>
-                <div class="stat-label">Processing Rate</div>
-            </div>
-            
-            <div class="stat-card spark-status">
                 <div class="stat-value" id="sparkJobs">0</div>
-                <div class="stat-label">Spark Jobs Executed</div>
-            </div>
-            
-            <div class="stat-card spark-status">
-                <div class="stat-value" id="realRecords">0</div>
-                <div class="stat-label">Real CSV Records</div>
+                <div class="stat-label">Jobs Spark Exécutés</div>
             </div>
         </div>
         
@@ -195,28 +205,29 @@
         
         <div class="charts-container">
             <div class="chart-card">
-                <h3>📊 Department Distribution</h3>
+                <h3>📊 Distribution par Département (VOS DONNÉES)</h3>
                 <div id="departmentList">
                     <div class="department-item">
-                        <span>Loading data...</span>
+                        <span>Chargement de vos données...</span>
                     </div>
                 </div>
             </div>
             
             <div class="chart-card">
-                <h3>📋 Real Data Sample (from CSV)</h3>
-                <div class="real-data-sample" id="realDataSample">
-                    Click "Show Spark Info" to load real data sample...
+                <h3>📋 Toutes Vos Données CSV</h3>
+                <div class="real-data-sample" id="allDataDisplay">
+                    Cliquez sur "Voir Toutes Mes Données" pour charger...
                 </div>
             </div>
         </div>
         
         <div class="chart-card">
-            <h3>📈 Processing Status</h3>
-            <p><strong>Last Update:</strong> <span id="lastUpdate">Never</span></p>
-            <p><strong>Spark Status:</strong> <span id="sparkStatusText">Not Started</span></p>
-            <p><strong>Data Source:</strong> HDFS via Spark DataFrame</p>
-            <p><strong>Processing Method:</strong> Real Spark Jobs with Distributed Computing</p>
+            <h3>📈 Statut de l'Analyse</h3>
+            <p><strong>Dernière mise à jour:</strong> <span id="lastUpdate">Jamais</span></p>
+            <p><strong>Statut Spark:</strong> <span id="sparkStatusText">Non démarré</span></p>
+            <p><strong>Source des données:</strong> HDFS via Spark DataFrame (VOS 10 lignes CSV)</p>
+            <p><strong>Méthode:</strong> Analyse statique des données réelles - Aucune génération</p>
+            <p><strong>Fichier analysé:</strong> sample_data.csv (10 enregistrements)</p>
         </div>
     </div>
 
@@ -228,12 +239,10 @@
                     // Update main stats
                     document.getElementById('totalRecords').textContent = data.total_records || 0;
                     document.getElementById('avgSalary').textContent = '$' + (data.avg_salary || 0).toLocaleString();
-                    document.getElementById('lastUpdate').textContent = data.last_update || 'Never';
+                    document.getElementById('lastUpdate').textContent = data.last_update || 'Jamais';
                     document.getElementById('sparkJobs').textContent = data.spark_jobs_count || 0;
-                    document.getElementById('realRecords').textContent = data.real_csv_records || 0;
-                    document.getElementById('processingRate').textContent = (data.processing_rate || 0) + '/batch';
-                    document.getElementById('sparkStatusText').textContent = data.spark_status || 'Unknown';
-                    document.getElementById('sparkStatus').textContent = data.spark_status || 'Disconnected';
+                    document.getElementById('sparkStatusText').textContent = data.spark_status || 'Inconnu';
+                    document.getElementById('sparkStatus').textContent = data.spark_status || 'Déconnecté';
                     
                     // Update department distribution
                     const deptList = document.getElementById('departmentList');
@@ -251,16 +260,18 @@
                                 const barWidth = maxCount > 0 ? (count / maxCount) * 200 : 30;
                                 deptList.innerHTML += `
                                     <div class="department-item">
-                                        <span>${dept}: ${count}</span>
+                                        <span><strong>${dept}</strong>: ${count} employés</span>
                                         <div class="department-bar" style="width: ${barWidth}px;"></div>
                                     </div>
                                 `;
                             });
+                    } else {
+                        deptList.innerHTML = '<div class="department-item"><span>Aucune donnée chargée</span></div>';
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching stats:', error);
-                    document.getElementById('sparkStatus').textContent = 'Connection Error';
+                    console.error('Erreur lors de la récupération des stats:', error);
+                    document.getElementById('sparkStatus').textContent = 'Erreur de connexion';
                 });
         }
         
@@ -270,12 +281,12 @@
                 .then(data => {
                     alert(data.message || data.status);
                     if (data.status === 'started') {
-                        setTimeout(updateStats, 2000);
+                        setTimeout(updateStats, 3000);
                     }
                 })
                 .catch(error => {
-                    console.error('Error starting processing:', error);
-                    alert('Error starting Spark processing');
+                    console.error('Erreur lors du démarrage:', error);
+                    alert('Erreur lors du démarrage de l\'analyse Spark');
                 });
         }
         
@@ -283,11 +294,11 @@
             fetch('/api/stop')
                 .then(response => response.json())
                 .then(data => {
-                    alert(data.message || 'Spark streaming stopped');
+                    alert(data.message || 'Analyse Spark arrêtée');
                     updateStats();
                 })
                 .catch(error => {
-                    console.error('Error stopping processing:', error);
+                    console.error('Erreur lors de l\'arrêt:', error);
                 });
         }
         
@@ -295,52 +306,71 @@
             updateStats();
         }
         
-        function showSparkInfo() {
+        function showAllData() {
             const sparkInfoDiv = document.getElementById('sparkInfo');
             const sparkDetailsDiv = document.getElementById('sparkDetails');
+            const allDataDiv = document.getElementById('allDataDisplay');
             
-            if (sparkInfoDiv.style.display === 'none') {
-                sparkInfoDiv.style.display = 'block';
-                
-                // Get Spark application info
-                fetch('/api/spark-info')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            sparkDetailsDiv.innerHTML = `<p style="color: #ff6b6b;">❌ ${data.error}</p>`;
+            // Afficher la section info
+            sparkInfoDiv.style.display = 'block';
+            
+            // Récupérer les infos Spark
+            fetch('/api/spark-info')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        sparkDetailsDiv.innerHTML = `<p style="color: #ff6b6b;">❌ ${data.error}</p>`;
+                    } else {
+                        sparkDetailsDiv.innerHTML = `
+                            <p><strong>Application ID:</strong> ${data.application_id}</p>
+                            <p><strong>Application Name:</strong> ${data.application_name}</p>
+                            <p><strong>Master URL:</strong> ${data.master_url}</p>
+                            <p><strong>Executors:</strong> ${data.executor_count}</p>
+                            <p><strong>Source:</strong> ${data.data_source || 'N/A'}</p>
+                            <p><strong>Type d'analyse:</strong> ${data.analysis_type || 'N/A'}</p>
+                        `;
+                    }
+                });
+            
+            // Récupérer TOUTES vos données
+            fetch('/api/real-data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        allDataDiv.innerHTML = `❌ ${data.error}`;
+                    } else {
+                        let dataHtml = `<strong>${data.message}</strong><br><br>`;
+                        
+                        if (data.all_data && data.all_data.length > 0) {
+                            data.all_data.forEach((record, index) => {
+                                dataHtml += `
+                                    <div class="data-record">
+                                        <strong>${index + 1}.</strong> 
+                                        ID: ${record.id}, 
+                                        Nom: ${record.name}, 
+                                        Âge: ${record.age}, 
+                                        Ville: ${record.city}, 
+                                        Département: ${record.department}, 
+                                        Salaire: $${record.salary?.toLocaleString() || 'N/A'}
+                                    </div>
+                                `;
+                            });
                         } else {
-                            sparkDetailsDiv.innerHTML = `
-                                <p><strong>Application ID:</strong> ${data.application_id}</p>
-                                <p><strong>Application Name:</strong> ${data.application_name}</p>
-                                <p><strong>Master URL:</strong> ${data.master_url}</p>
-                                <p><strong>Executors:</strong> ${data.executor_count}</p>
-                            `;
+                            dataHtml += 'Aucune donnée trouvée';
                         }
-                    });
-                
-                // Get real data sample
-                fetch('/api/real-data')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            document.getElementById('realDataSample').innerHTML = `❌ ${data.error}`;
-                        } else {
-                            const sampleHtml = data.sample_data.map(record => 
-                                `ID: ${record.id}, Name: ${record.name}, Dept: ${record.department}, Salary: $${record.salary}`
-                            ).join('<br>');
-                            document.getElementById('realDataSample').innerHTML = 
-                                `<strong>Total Records:</strong> ${data.total_records}<br><br>${sampleHtml}`;
-                        }
-                    });
-            } else {
-                sparkInfoDiv.style.display = 'none';
-            }
+                        
+                        allDataDiv.innerHTML = dataHtml;
+                    }
+                })
+                .catch(error => {
+                    allDataDiv.innerHTML = `❌ Erreur: ${error.message}`;
+                });
         }
         
-        // Auto-refresh every 10 seconds
-        setInterval(updateStats, 10000);
+        // Auto-refresh toutes les 15 secondes (moins fréquent car c'est statique)
+        setInterval(updateStats, 15000);
         
-        // Initial load
+        // Chargement initial
         updateStats();
     </script>
 </body>

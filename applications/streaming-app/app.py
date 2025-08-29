@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Real Spark Streaming Application for Big Data Project
-Using actual Spark jobs to process CSV data
+Using actual Spark jobs to process CSV data - FIXED VERSION
 """
 
 from flask import Flask, render_template, jsonify
@@ -39,7 +39,7 @@ streaming_results = {
     'last_update': None,
     'processing_rate': 0,
     'spark_jobs_count': 0,
-    'real_csv_records': 0,
+    'real_csv_records': 10,  # Fixé à 10 car vous avez 10 lignes
     'spark_status': 'Not Started'
 }
 
@@ -48,6 +48,7 @@ class RealSparkProcessor:
         self.spark = None
         self.original_data = None
         self.streaming_active = False
+        self.data_processed_count = 0
         
     def initialize_spark(self):
         """Initialiser une vraie session Spark"""
@@ -61,7 +62,7 @@ class RealSparkProcessor:
                 .config("spark.default.parallelism", "6") \
                 .getOrCreate()
             
-            self.spark.sparkContext.setLogLevel("INFO")  # Pour voir les jobs
+            self.spark.sparkContext.setLogLevel("INFO")
             print("✅ Session Spark créée avec Master: spark://namenode:7077")
             return True
         except Exception as e:
@@ -69,7 +70,7 @@ class RealSparkProcessor:
             return False
     
     def load_real_csv_data(self):
-        """Charger les vraies données CSV avec Spark"""
+        """Charger les vraies données CSV avec Spark - UNIQUEMENT VOS 10 LIGNES"""
         global streaming_results
         
         if not self.spark:
@@ -99,7 +100,7 @@ class RealSparkProcessor:
             df.cache()
             self.original_data = df
             
-            # Calculer les statistiques réelles avec Spark
+            # Calculer les statistiques réelles avec Spark - UNE SEULE FOIS
             total_count = df.count()
             avg_salary = df.agg(avg("salary")).collect()[0][0]
             
@@ -108,19 +109,21 @@ class RealSparkProcessor:
             dept_results = dept_df.collect()
             dept_counts = {row["department"]: row["count"] for row in dept_results}
             
-            # Mettre à jour les résultats
+            # Mettre à jour les résultats FIXES
             streaming_results.update({
                 'real_csv_records': total_count,
                 'total_records': total_count,
                 'avg_salary': round(avg_salary, 2) if avg_salary else 0,
                 'department_counts': dept_counts,
                 'last_update': time.strftime('%Y-%m-%d %H:%M:%S'),
-                'spark_status': 'Data Loaded',
-                'spark_jobs_count': 1
+                'spark_status': 'Data Loaded - Static Analysis',
+                'spark_jobs_count': 1,
+                'processing_rate': total_count
             })
             
             print(f"✅ Données chargées avec Spark: {total_count} enregistrements")
             print(f"📊 Départements trouvés: {list(dept_counts.keys())}")
+            print(f"💰 Salaire moyen: {avg_salary:.2f}")
             
             return True
             
@@ -129,7 +132,7 @@ class RealSparkProcessor:
             return False
     
     def start_real_spark_streaming(self):
-        """Démarrer le vrai streaming Spark"""
+        """Démarrer l'analyse statique des données réelles - PAS DE GÉNÉRATION"""
         global streaming_results
         
         if not self.original_data:
@@ -137,62 +140,88 @@ class RealSparkProcessor:
             return
         
         self.streaming_active = True
-        streaming_results['spark_status'] = 'Streaming Active'
+        streaming_results['spark_status'] = 'Analyzing Real Data'
         job_counter = 1
         
-        print("🔄 Démarrage du Spark Streaming réel...")
+        print("🔄 Démarrage de l'analyse Spark des données réelles...")
         
-        while self.streaming_active:
-            try:
-                # Créer des micro-batches en échantillonnant les données
-                sample_fraction = random.uniform(0.3, 0.8)
-                batch_df = self.original_data.sample(sample_fraction, seed=int(time.time()))
+        # Analyse complète UNE SEULE FOIS
+        try:
+            print(f"📊 Analyse Spark Job #{job_counter} - VOS DONNÉES RÉELLES")
+            
+            # Traitement Spark distribué de VOS vraies données
+            total_records = self.original_data.count()
+            avg_salary_result = self.original_data.agg(avg("salary")).collect()[0][0]
+            
+            # Analyse par département pour VOS données
+            dept_analysis = self.original_data.groupBy("department") \
+                .agg(
+                    count("*").alias("count"),
+                    avg("salary").alias("avg_salary"),
+                    min("salary").alias("min_salary"),
+                    max("salary").alias("max_salary")
+                ).collect()
+            
+            # Analyse par ville pour VOS données
+            city_analysis = self.original_data.groupBy("city") \
+                .agg(count("*").alias("count")) \
+                .orderBy("count", ascending=False).collect()
+            
+            # Analyse par tranche d'âge pour VOS données
+            age_analysis = self.original_data.withColumn(
+                "age_group", 
+                when(col("age") < 30, "Young")
+                .when(col("age") < 50, "Middle")
+                .otherwise("Senior")
+            ).groupBy("age_group") \
+             .agg(
+                 count("*").alias("count"),
+                 avg("salary").alias("avg_salary")
+             ).collect()
+            
+            # Afficher les résultats réels
+            print("📊 RÉSULTATS DE VOS VRAIES DONNÉES:")
+            print(f"   Total employés: {total_records}")
+            print(f"   Salaire moyen: {avg_salary_result:.2f}")
+            
+            print("📊 Analyse par département:")
+            dept_counts = {}
+            for row in dept_analysis:
+                dept_name = row["department"]
+                dept_count = row["count"]
+                dept_avg_salary = row["avg_salary"]
+                dept_counts[dept_name] = dept_count
+                print(f"   {dept_name}: {dept_count} employés, salaire moyen: {dept_avg_salary:.2f}")
+            
+            print("📊 Analyse par ville:")
+            for row in city_analysis:
+                print(f"   {row['city']}: {row['count']} employés")
                 
-                print(f"📊 Traitement Spark Job #{job_counter}")
-                
-                # Traitement Spark distribué
-                batch_count = batch_df.count()
-                batch_avg_salary = batch_df.agg(avg("salary")).collect()[0][0]
-                
-                # Analyse par département pour ce batch
-                dept_analysis = batch_df.groupBy("department") \
-                    .agg(
-                        count("*").alias("count"),
-                        avg("salary").alias("avg_salary"),
-                        min("salary").alias("min_salary"),
-                        max("salary").alias("max_salary")
-                    ).collect()
-                
-                # Analyse par tranche d'âge
-                age_analysis = batch_df.withColumn(
-                    "age_group", 
-                    when(col("age") < 30, "Young")
-                    .when(col("age") < 50, "Middle")
-                    .otherwise("Senior")
-                ).groupBy("age_group").count().collect()
-                
-                # Mettre à jour les statistiques globales
-                streaming_results['total_records'] += batch_count
-                streaming_results['avg_salary'] = round(batch_avg_salary, 2) if batch_avg_salary else 0
-                streaming_results['processing_rate'] = batch_count
-                streaming_results['spark_jobs_count'] = job_counter
-                streaming_results['last_update'] = time.strftime('%Y-%m-%d %H:%M:%S')
-                
-                # Mettre à jour les départements avec les vrais résultats Spark
-                new_dept_counts = {}
-                for row in dept_analysis:
-                    new_dept_counts[row["department"]] = row["count"]
-                streaming_results['department_counts'] = new_dept_counts
-                
-                print(f"✅ Job #{job_counter} terminé: {batch_count} records, avg salary: {batch_avg_salary:.2f}")
-                print(f"📈 Total traité: {streaming_results['total_records']} records")
-                
-                job_counter += 1
-                time.sleep(10)  # Intervalle entre les jobs
-                
-            except Exception as e:
-                print(f"❌ Erreur Spark Streaming: {e}")
-                time.sleep(15)
+            print("📊 Analyse par tranche d'âge:")
+            for row in age_analysis:
+                print(f"   {row['age_group']}: {row['count']} employés, salaire moyen: {row['avg_salary']:.2f}")
+            
+            # Mettre à jour les statistiques FINALES avec VOS vraies données
+            streaming_results.update({
+                'total_records': total_records,
+                'avg_salary': round(avg_salary_result, 2) if avg_salary_result else 0,
+                'processing_rate': total_records,
+                'spark_jobs_count': job_counter,
+                'last_update': time.strftime('%Y-%m-%d %H:%M:%S'),
+                'department_counts': dept_counts,
+                'spark_status': f'Analysis Complete - {total_records} Real Records Processed'
+            })
+            
+            print(f"✅ Analyse terminée: {total_records} vrais enregistrements traités")
+            
+            # Arrêter le streaming car l'analyse est terminée
+            self.streaming_active = False
+            streaming_results['spark_status'] = 'Analysis Complete - Real Data Only'
+            
+        except Exception as e:
+            print(f"❌ Erreur Spark Streaming: {e}")
+            self.streaming_active = False
+            streaming_results['spark_status'] = 'Analysis Failed'
     
     def stop_streaming(self):
         """Arrêter le streaming"""
@@ -209,7 +238,9 @@ class RealSparkProcessor:
                     'application_id': app_id,
                     'application_name': app_name,
                     'master_url': 'spark://namenode:7077',
-                    'executor_count': len(self.spark.sparkContext.statusTracker().getExecutorInfos()) - 1
+                    'executor_count': len(self.spark.sparkContext.statusTracker().getExecutorInfos()) - 1,
+                    'data_source': 'Real CSV Data (10 records)',
+                    'analysis_type': 'Static Analysis of Real Data'
                 }
         except:
             pass
@@ -239,15 +270,16 @@ def start_processing():
     try:
         # Charger les données avec Spark
         if spark_processor.load_real_csv_data():
-            # Démarrer le streaming Spark en arrière-plan
+            # Démarrer l'analyse Spark en arrière-plan
             thread = threading.Thread(target=spark_processor.start_real_spark_streaming, daemon=True)
             thread.start()
             
             return jsonify({
                 'status': 'started',
-                'message': f'Spark Streaming démarré avec {streaming_results["real_csv_records"]} records réels',
+                'message': f'Analyse Spark démarrée avec {streaming_results["real_csv_records"]} vrais enregistrements',
                 'spark_master': 'spark://namenode:7077',
-                'data_source': 'HDFS via Spark'
+                'data_source': 'HDFS - Vos vraies données CSV (10 lignes)',
+                'analysis_type': 'Static Analysis - No Data Generation'
             })
         else:
             return jsonify({'status': 'error', 'message': 'Échec chargement données Spark'})
@@ -258,7 +290,7 @@ def start_processing():
 def stop_processing():
     """Arrêter le streaming"""
     spark_processor.stop_streaming()
-    return jsonify({'status': 'stopped', 'message': 'Spark Streaming arrêté'})
+    return jsonify({'status': 'stopped', 'message': 'Analyse Spark arrêtée'})
 
 @app.route('/api/spark-info')
 def get_spark_info():
@@ -271,15 +303,17 @@ def get_spark_info():
 
 @app.route('/api/real-data')
 def get_real_data():
-    """Afficher un échantillon des vraies données CSV"""
+    """Afficher TOUTES vos vraies données CSV"""
     try:
         if spark_processor.original_data:
-            sample_data = spark_processor.original_data.limit(10).collect()
-            result = [row.asDict() for row in sample_data]
+            # Récupérer TOUTES vos données (pas seulement un échantillon)
+            all_data = spark_processor.original_data.collect()
+            result = [row.asDict() for row in all_data]
             return jsonify({
                 'status': 'success',
                 'total_records': streaming_results['real_csv_records'],
-                'sample_data': result
+                'all_data': result,  # Toutes vos données
+                'message': f'Voici vos {len(result)} vrais enregistrements'
             })
         else:
             return jsonify({'error': 'Pas de données Spark chargées'})
@@ -287,8 +321,10 @@ def get_real_data():
         return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
-    print("🚀 Démarrage Application Spark Streaming RÉELLE")
+    print("🚀 Démarrage Application Spark - ANALYSE DE VOS VRAIES DONNÉES UNIQUEMENT")
     print("⚡ Connexion à Spark Master: spark://namenode:7077")
+    print("📊 Mode: Analyse statique de vos 10 lignes CSV réelles")
+    print("🚫 Aucune génération de données aléatoires")
     
     # Démarrer Flask
     app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
