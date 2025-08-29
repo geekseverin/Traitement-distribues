@@ -225,18 +225,6 @@ docker-compose restart namenode
 sudo lsof -i :9870
 ```
 
-## 📝 Livrables
-
-✅ **Dockerfiles et scripts**
-✅ **Scripts Pig pour l'analyse**  
-✅ **Configuration Hadoop-MongoDB**
-✅ **Application dynamique**
-✅ **Diagrammes de workflow**
-✅ **Vidéo de présentation**
-
-## 👨‍💻 Auteur
-**Étudiant Master 1 UCAO**  
-**Année académique 2024-2025**
 
 ---
 
