@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y \
     rsync \
     python3 \
     python3-pip \
+    netcat \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Set environment variables
@@ -17,6 +19,7 @@ ENV SPARK_VERSION=3.4.0
 ENV HADOOP_HOME=/opt/hadoop
 ENV SPARK_HOME=/opt/spark
 ENV PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$SPARK_HOME/bin
+ENV PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.9.7-src.zip
 
 # Download and install Hadoop
 RUN wget https://archive.apache.org/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz \
@@ -45,6 +48,13 @@ RUN wget https://repo1.maven.org/maven2/org/mongodb/mongo-hadoop/mongo-hadoop-co
     && wget https://repo1.maven.org/maven2/org/mongodb/mongodb-driver/3.12.11/mongodb-driver-3.12.11.jar \
     -O $HADOOP_HOME/share/hadoop/common/lib/mongodb-driver-3.12.11.jar
 
+# Install Python packages
+RUN pip3 install --no-cache-dir \
+    flask==2.3.3 \
+    pyspark==3.4.0 \
+    pymongo==4.5.0 \
+    requests==2.31.0
+
 # Configure SSH
 RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa \
     && cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys \
@@ -60,6 +70,6 @@ RUN mkdir -p /hadoop/dfs/name /hadoop/dfs/data /hadoop/logs
 COPY start-services.sh /start-services.sh
 RUN chmod +x /start-services.sh
 
-EXPOSE 9870 8020 8080 4040 9000
+EXPOSE 9870 8020 8080 4040 9000 7077 5000
 
 CMD ["/start-services.sh"]
